@@ -9,6 +9,8 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly.offline as offline
 
+
+# NearbyPlace, Location, and NearbyRestaurants Class was built to parse data return from yelp and google api
 class NearbyPlace():
     def __init__(self, name=None, lat=None, lng=None, image_url=None, addr=None, types=None):
         self.name = name
@@ -155,27 +157,32 @@ def make_request_using_cache(url):
         print("writen")
         return CACHE_DICTION[unique_ident]
 
+# using ipinfo api to get currunt ip address
+# ipstack: ipstack offers a powerful, real-time IP to geolocation API capable of looking up accurate location data and assessing security threats originating from risky IP addresses
+# Api_documents: https://ipstack.com/documentation
+# request format: http://api.ipstack.com/35.3.122.184?access_key=api_key
+
 def get_ip_addr():
     url = "http://ipinfo.io/json"
     resp = requests.get(url).text
     content = json.loads(resp)
-    # print(content['ip'])
     return content['ip']
-# get_ip_addr()
+
+# using ipstack api to get currunt address
+# ipinfo: geting json response which contains currunt ip address
+# Api_documents: https://ipinfo.io/developers
+# request format: http://ipinfo.io/json
 
 def get_geo_addr_with_ip():
     ip_addr = get_ip_addr()
     print(ip_addr)
     if ip_addr is None:
         return None
-    # Api_documents: https://ipstack.com/documentation
-    # http://api.ipstack.com/35.3.122.184?access_key=api_key
     base_url = "http://api.ipstack.com/"
     url = base_url + ip_addr + "?access_key=" + secrets.ipstack_api_key
     resp = requests.get(url).text
     content = json.loads(resp)
     addr = []
-    # for item in content:
     addr.append(Location(content["city"], content["region_name"], content["country_name"], content["latitude"], content["longitude"], None, None))
     insert_location(addr)
     latitude = content["latitude"]
@@ -184,9 +191,12 @@ def get_geo_addr_with_ip():
     print(str(latitude) + " "  + str(longitude))
     return (latitude), (longitude)
 
+
+# google geocode api: Geocoding is the process of converting addresses (like "1600 Amphitheatre Parkway, Mountain View, CA") into geographic coordinates (like latitude 37.423021 and longitude -122.083739), which you can use to place markers on a map, or position the map.
+# Api_documents: https://developers.google.com/maps/documentation/geocoding/intro
+# request format: https://maps.googleapis.com/maps/api/geocode/json?address=Mountain+View,+CA&key=api_key
+
 def get_geo_addr_with_city(addr):
-    # Api_documents: https://developers.google.com/maps/documentation/geocoding/intro
-    # https://maps.googleapis.com/maps/api/geocode/json?address=Mountain+View,+CA&key=api_key
     addr_format = addr.replace(" ", "+")
     base_url = "https://maps.googleapis.com/maps/api/geocode/json?address="
     url = base_url + addr_format + "&key=" + secrets.google_api_key
@@ -204,9 +214,12 @@ def get_geo_addr_with_city(addr):
     print(str(latitude) + " "  + str(longitude))
     return (latitude), (longitude)
 
+# google places api: The Places API allows you to query for place information on a variety of categories, such as: establishments, prominent points of interest, geographic locations, and more.
+# Api_documents: https://developers.google.com/places/web-service/search
+# request format: https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=37.3860517,-122.0838511&radius=10000&key=api_key
+
+
 def get_nearby_places_for_site(lat,lng):
-    # https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=37.3860517,-122.0838511&radius=10000&key=api_key
-    # Api_documents: https://developers.google.com/places/web-service/search
     nearby_base_url = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=' + str(lat) + ',' + str(lng) + '&radius=10000&key=' + secrets.google_places_key
     nearby_json = make_request_using_cache(nearby_base_url)
     nearby_search_results = nearby_json['results']
@@ -217,9 +230,6 @@ def get_nearby_places_for_site(lat,lng):
         return []
     else:
         for i in nearby_search_results:
-            # if i['geometry']['location']['lat'] == lat and i['geometry']['location']['lng'] == lng:
-            #     continue
-            # else:
             locations.append(Location(None, None, None, i['geometry']['location']['lat'], i['geometry']['location']['lng'], i["vicinity"]))
             categories = ''
             for type in i['types']:
@@ -234,10 +244,6 @@ def get_nearby_places_for_site(lat,lng):
     insert_places(nearby_places, lat, lng)
     return nearby_places
 
-
-# nearby_places = get_nearby_places_for_site()
-# for i in nearby_places:
-#     print(i)
 
 def make_request_using_cache_with_headers(url,header):
     unique_ident = url
@@ -260,16 +266,16 @@ def make_request_using_cache_with_headers(url,header):
         print("writen")
         return CACHE_DICTION[unique_ident]
 
+# yelp fusion api: geting corresponding Restaurants
+# Api_documents: https://www.yelp.com/developers/documentation/v3/business_search
+# request format: https://api.yelp.com/v3/businesses/search?latitude=42.3042&longitude=-83.7068
+
 def get_nearby_restaurants(lat,lng):
-    # Api_documents: https://www.yelp.com/developers/documentation/v3/business_search
-    # https://api.yelp.com/v3/businesses/search?latitude=42.3042&longitude=-83.7068
     nearby_restaurants_base_url = 'https://api.yelp.com/v3/businesses/search?latitude=' + str(lat) + '&longitude=' + str(lng)
     # auth = OAuth1(consumer_key, consumer_secret, access_token, access_secret)
     headers = {'Authorization': 'Bearer %s' % secrets.yelp_api_key}
     nearby_restaurants_json = make_request_using_cache_with_headers(nearby_restaurants_base_url, headers)
-    # print(nearby_restaurants_json)
     nearby_restaurants_search_results = nearby_restaurants_json['businesses']
-    # print(nearby_restaurants_search_results)
     nearby_restaurants = []
     locations = []
     if nearby_restaurants_search_results is None:
@@ -278,14 +284,13 @@ def get_nearby_restaurants(lat,lng):
         for i in nearby_restaurants_search_results:
             locations.append(Location(i["location"]["city"], i["location"]["state"], i["location"]["country"], i["coordinates"]["latitude"], i["coordinates"]["longitude"], str(i["location"]["address1"]) + " " + str(i["location"]["address2"]) + " " + str(i["location"]["address3"])))
             nearby_restaurants.append(NearbyRestaurants(json = i))
-    # for i in nearby_restaurants:
-    #     print(i)
     insert_location(locations)
     insert_restaurants(nearby_restaurants)
     insert_distances(nearby_restaurants, lat, lng)
     return nearby_restaurants
 # categories_list = ['pizza','breakfast','chinese','Burgers', 'mexican', 'steakhouses','korean','thai','seafood','italian','japanese','sandwiches','vietnamese','vegetarian','sushiBars','American']
 
+# init_db() creat tables of Locations, Restaurants, Users, Distances, and Places
 def init_db():
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -370,6 +375,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+# To processing requests, the fuctions get_location_id(), get_user_id(), get_restaurants_id, search_places_with_location(), and search_Restaurants_with_location() are created, which query databases to return the corresponding id or rows.
 def insert_location(locations):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -383,6 +389,7 @@ def insert_location(locations):
         conn.commit()
     conn.close()
 
+# insert data to Users table
 def insert_users(lat, lng):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -396,6 +403,7 @@ def insert_users(lat, lng):
     conn.commit()
     conn.close()
 
+# insert data to Restaurants table
 def insert_restaurants(Restaurants):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -414,6 +422,7 @@ def insert_restaurants(Restaurants):
         conn.commit()
     conn.close()
 
+# insert data to Places table
 def insert_places(Places, lat, lng):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -429,6 +438,7 @@ def insert_places(Places, lat, lng):
         conn.commit()
     conn.close()
 
+# insert data to Distances table
 def insert_distances(nearby_restaurants, lat, lng):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -452,6 +462,7 @@ def insert_distances(nearby_restaurants, lat, lng):
         conn.commit()
     conn.close()
 
+# query Locations table to return the corresponding id
 def get_location_id(lat, lng):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -469,6 +480,8 @@ def get_location_id(lat, lng):
     conn.close()
     return location_id
 
+
+# query Locations and Users table to return the corresponding id
 def get_user_id(lat, lng):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -496,6 +509,7 @@ def get_user_id(lat, lng):
     conn.close()
     return users_id
 
+# query Restaurants table to return the corresponding id
 def get_restaurants_id(item, locationId):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -512,6 +526,7 @@ def get_restaurants_id(item, locationId):
     conn.close()
     return restaurantsId
 
+# query databases to return the corresponding Restaurants
 def search_Restaurants_with_location(lat, lng):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -534,6 +549,7 @@ def search_Restaurants_with_location(lat, lng):
     conn.close()
     return row
 
+# query databases to return the corresponding Places
 def search_places_with_location(lat, lng):
     conn = sqlite3.connect(DBNAME)
     cur = conn.cursor()
@@ -550,26 +566,27 @@ def search_places_with_location(lat, lng):
     conn.close()
     return row
 
-# def plot_map(lat, lng):
-
+# geting lat, lng with the city_name. search the corresponding restuarants/places and store it.
+# query the databases and return those data
 def builde_db_from_addr(city_name):
     lat, lng = get_geo_addr_with_city(city_name)
     get_nearby_places_for_site(lat, lng)
     get_nearby_restaurants(lat, lng)
     Places_list = search_places_with_location(lat, lng)
     Restaurants_list = search_Restaurants_with_location(lat, lng)
-    # return Places_list, Restaurants_list
     return Places_list, Restaurants_list
 
+# geting lat, lng with the currunt ip. search the corresponding restuarants/places and store it.
+# query the databases and return those data
 def builde_db_from_ip():
     lat, lng = get_geo_addr_with_ip()
     get_nearby_places_for_site(lat, lng)
     get_nearby_restaurants(lat, lng)
     Places_list = search_places_with_location(lat, lng)
     Restaurants_list = search_Restaurants_with_location(lat, lng)
-    # plot_map(lat, lng)
     return Places_list, Restaurants_list
 
+# plot_map creat a map visualization of the search restuarants/places and the currunt user.
 def plot_map(latitude, longitude):
     Restaurants_colleciton = search_Restaurants_with_location(latitude, longitude)
     # Places_colleciton = search_places_with_location(latitude, longitude)
@@ -578,7 +595,7 @@ def plot_map(latitude, longitude):
     restaurant_lat_vals = []
     restaurant_lon_vals = []
     restaurant_text_vals = []
-    #
+
     palces_lat_vals = []
     palces_lon_vals = []
     palces_text_vals = []
