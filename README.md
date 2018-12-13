@@ -59,7 +59,7 @@ or
 On Mac:
     $ source flask1/bin/activate
 On Windows:
-    > flask1\Scripts\activate.bat
+    flask1\Scripts\activate.bat
 On git bash:
     $ source flask1/Scripts/activate
 
