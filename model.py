@@ -169,7 +169,7 @@ def get_geo_addr_with_ip():
     if ip_addr is None:
         return None
     # Api_documents: https://ipstack.com/documentation
-    # http://api.ipstack.com/35.3.122.184?access_key=04b79732e26793657e2f847e7d2d6c66
+    # http://api.ipstack.com/35.3.122.184?access_key=api_key
     base_url = "http://api.ipstack.com/"
     url = base_url + ip_addr + "?access_key=" + secrets.ipstack_api_key
     resp = requests.get(url).text
