@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Nearby Events</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500|Signika:300" rel="stylesheet">
+    <style>
+    /*    YOUR CSS CODE HERE */
+    #Enteraddress {
+    	display: none;
+    }
+    body{
+      margin-left:30px;
+      margin-right: 30px;
+      margin-top: 100px;
+    }
+    h1{
+      display: flex;
+      justify-content: center;
+      font-family: 'Signika', sans-serif;
+      font-weight: 300;
+      font-size: 60px;
+      color:#F37766;
+    }
+    p{
+      text-align: center;
+      font-family: 'Open Sans', sans-serif;
+      font-size: 24px;
+      color:#383838;
+    }
+    form{
+      display: inline-block;
+      margin-left: 40%;
+    }
+    input[type=button], input[type=submit], input[type=reset] {
+      background-color: #F37766;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      padding: 14px 40px;
+      text-decoration: none;
+      font-size:24px;
+      margin: 30px 2px;
+      cursor: pointer;
+    }
+    input[type=text],select {
+      width: 100%;
+      padding: 12px 20px;
+      margin: 8px 0;
+      display: inline-block;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+}
+    .form-radio{
+     -webkit-appearance: none;
+     -moz-appearance: none;
+     appearance: none;
+     display: inline-block;
+     position: relative;
+     background-color: #f1f1f1;
+     color: #666;
+     top: 10px;
+     height: 30px;
+     width: 30px;
+     border: 0;
+     border-radius: 50px;
+     cursor: pointer;
+     margin-right: 7px;
+     outline: none;
+   }
+    .form-radio:checked::before{
+     position: absolute;
+     font: 13px/1 'Open Sans', sans-serif;
+     left: 11px;
+     top: 7px;
+     content: '\02143';
+     transform: rotate(40deg);
+   }
+    .form-radio:hover{
+     background-color: #f7f7f7;
+   }
+    .form-radio:checked{
+     background-color: #f1f1f1;
+   }
+    label{
+     font: 300 16px/1.7 'Open Sans', sans-serif;
+     color: #666;
+     cursor: pointer;
+   }
+   .glowingborder {
+    border: 2px solid #dadada;
+    border-radius: 7px;
+}
+
+.glowingborder:focus {
+    outline: none;
+    border-color: #FDDBD7;
+    box-shadow: 0 0 10px #FDBFB7;
+}
+
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+    $(document).ready(function(){
+        $("#subscribe").click(function(){
+            $("#Enteraddress").show("slow", function(){
+                // alert("The paragraph is now hidden");
+            });
+        });
+        $("#NearbyEvents").click(function(){
+            $("#Enteraddress").hide("slow", function(){
+                // alert("The paragraph is now hidden");
+            });
+        });
+    });
+    </script>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+      <h1>Welcome to Nearby Events!</h1>
+      <p>To start, Select Nearby or Enter address (eg.The city name) to Find your nearby Restaurants and places</p>
+      <form action="/search" method="POST">
+          <!-- Nearby or Enter address:<br> -->
+          <input type="radio" name="options" id="subscribe" class="form-radio" value="enter_addr"><label for="subscribe">Search by Address</label><br/>
+          <div id="Enteraddress" style="color:#F37766;font-family: 'Open Sans', sans-serif;font-size: 16px;margin-left: 17%;margin-top: 10px;margin-bottom: 10px;">Enter address: <input type="text" name="address" id="address" class="glowingborder"/></div>
+          <input type="radio" name="options" id="NearbyEvents" class="form-radio" value="nearby"/><label for="NearbyEvents">Search Nearby Events</label><br/>
+          <input type="submit" value="Search"/>
+      </form>
+  </body>
+</html>

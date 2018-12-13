@@ -1,0 +1,110 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Nearby Events</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500|Signika:300" rel="stylesheet">
+    <style>
+    body{
+      margin:30px;
+    }
+    h1{
+      display: flex;
+      justify-content: center;
+      font-family: 'Signika', sans-serif;
+      font-weight: 300;
+      font-size: 60px;
+      color:#F37766;
+    }
+    h2{
+      font-family: 'Open Sans', sans-serif;
+      font-size: 24px;
+      color:#F37766;
+    }
+    img {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 5px;
+      width: 150px;
+    }
+    th{
+        font-family: 'Open Sans', sans-serif;
+        font-size: 16px;
+    }
+    td{
+        font-family: 'Open Sans', sans-serif;
+        font-size: 16px;
+    }
+    #searchAgain{
+        background-color: #F37766;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        padding: 14px 40px;
+        text-decoration: none;
+        font-size:24px;
+        margin: 30px 2px;
+        cursor: pointer;
+    }
+    </style>
+  </head>
+  <body>
+      <h1>Events for {{Location}}</h1>
+      <form action="/">
+          <input type="submit" value="Search again" id="searchAgain"/>
+      </form>
+      {{map | safe}}
+      <h2>Restaurants</h2>
+      <table border="1">
+          <tr>
+              <th>Name</th>
+              <th>Rating</th>
+              <th>Distance/m</th>
+              <th>Img</th>
+              <th>Categories</th>
+              <th>Url</th>
+              <th>Location</th>
+              <th>Phone</th>
+          </tr>
+      {% for row in Restaurants_list %}
+          <tr>
+              <td>{{row[1]}}</td>
+              <td>{{row[2]}}</td>
+              {% set distance = row[7].split('.') %}
+              <td>{{distance[0]}}</td>
+              <td><img src={{row[4]}}></td>
+              <!-- <td>{{row[4]}}</td> -->
+              <td>{{row[6]}}</td>
+              <td><a href = {{row[3]}}>web_site</td>
+              <!-- <td>{{row[3]}}</td> -->
+              <td>{{row[0]}} {{row[10]}} {{row[11]}}</td>
+              <td>{{row[5]}}</td>
+          </tr>
+      {% endfor %}
+      </table>
+
+      <h2>Places</h2>
+      <table border="1">
+          <tr>
+              <th>Name</th>
+              <th>Address</th>
+              <th>Image_url</th>
+              <th>Types</th>
+          </tr>
+      {% for row in Places_list %}
+          <tr>
+              <td>{{row[1]}}</td>
+              <td>{{row[0]}}</td>
+              <td>{{row[2]}}</td>
+              <!-- <td><img src={{row[2]}}></td> -->
+              <td>{{row[3]}}</td>
+          </tr>
+      {% endfor %}
+      </table>
+      <form action="/">
+          <input type="submit" value="Search again" id="searchAgain"/>
+      </form>
+  </body>
+</html>
