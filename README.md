@@ -1,4 +1,4 @@
-# NearbyEventsApp
+# NearbyPlacesApp
 
 ## Intention:
     This program have two endpoint, search your nearby events and search the events with input address, and The program will display the current user’s nearby restaurants by using HTML tables within a Flask App:
